@@ -39,7 +39,7 @@ public class MonitorProcess {
                     av=Long.parseLong(file.getName().substring(0,file.getName().lastIndexOf('.')));
                 }
                 catch (Exception e){
-                     continue;
+                    continue;
                 }
                 if(avSet.contains(av)) {
                     continue;
@@ -47,7 +47,13 @@ public class MonitorProcess {
                 String text = subtitleReader.getTotalText(file.getAbsolutePath());
                 subtitleStore.storeText(av,text);
                 avSet.add(av);
-                Files.move(Paths.get(file.getAbsolutePath()),Paths.get(backup_dir_path,file.getName()));
+                try {
+                    Files.move(Paths.get(file.getAbsolutePath()),Paths.get(backup_dir_path,file.getName()));
+                }
+                catch (Exception e){
+                    logger.error("backup file:{] fail delete it",file.getAbsolutePath(),e);
+                    Files.delete(Paths.get(file.getAbsolutePath()));
+                }
             }
             sleep(1000);
         }

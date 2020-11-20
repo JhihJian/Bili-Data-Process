@@ -1,6 +1,7 @@
 package org.jhihjian.bili;
 
 import org.jhihjian.bili.util.Conf;
+import org.jhihjian.bili.util.EscapeSql;
 import org.jhihjian.bili.util.MySQL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +13,7 @@ import java.util.List;
 
 public class SubtitleStore {
     private final Logger logger= LoggerFactory.getLogger(this.getClass().getName());
-    private final String INSERT_SQL="INSERT INTO `bili_total_text` (`av`, `total_text`) VALUES ('%s','%s')";
+    private final String INSERT_SQL="INSERT INTO `bili_total_text` (`av`, `total_text`) VALUES (\"%s\",\"%s\")";
     private final String QUERY_SQL="SELECT * FROM bili_total_text WHERE av='%s'";
     private final String QUERY_ALL_SQL="SELECT * FROM bili_total_text";
     private final MySQL mysql;
@@ -27,7 +28,7 @@ public class SubtitleStore {
     }
     public boolean storeText(Long av,String text){
         try {
-            int resultCode = mysql.update(String.format(INSERT_SQL,av,text));
+            int resultCode = mysql.update(String.format(INSERT_SQL,av, EscapeSql.escape(text)));
             return resultCode==1;
         } catch (SQLException e) {
             logger.error("",e);
