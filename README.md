@@ -1,4 +1,4 @@
-
+![](https://socialify.git.ci/JhihJian/Bili-Data-Process/image?description=1&font=Source%20Code%20Pro&language=1&owner=1&pattern=Floating%20Cogs&stargazers=1&theme=Light)
 ### 安装数据库
 安装
 ```
