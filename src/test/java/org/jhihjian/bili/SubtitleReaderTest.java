@@ -17,6 +17,11 @@ public class SubtitleReaderTest {
     @Test
     public void getTotalText() throws IOException {
         SubtitleReader subtitleReader=new SubtitleReader();
-        Assert.assertEquals( "钱包都快跪下来求我当人了,民族荣誉招你煮你了,这是一个有底线的企业,但凡是工业品,每一个环节都存在风险",subtitleReader.getTotalText(path));
+        subtitleReader.getTotalText(path);
+    }
+    @Test
+    public void getTotalText2() throws IOException {
+        SubtitleReader subtitleReader=new SubtitleReader();
+        Assert.assertEquals( "钱包都快跪下来求我当人了,民族荣誉招你煮你了,这是一个有底线的企业,但凡是工业品,每一个环节都存在风险",subtitleReader.getTotalText("C:\\Users\\jhihjian\\927786048.txt"));
     }
 }
