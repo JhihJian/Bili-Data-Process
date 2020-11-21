@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import static java.lang.Thread.sleep;
@@ -36,22 +37,24 @@ public class MonitorProcess {
                 logger.info("detect file:{}",file.getAbsolutePath());
                 Long av;
                 try {
-                    av=Long.parseLong(file.getName().substring(0,file.getName().lastIndexOf('.')));
-                }
-                catch (Exception e){
+                    av = Long.parseLong(file.getName().substring(0, file.getName().lastIndexOf('.')));
+                } catch (Exception e) {
                     continue;
                 }
-                if(avSet.contains(av)) {
+                if (avSet.contains(av)) {
                     continue;
                 }
                 String text = subtitleReader.getTotalText(file.getAbsolutePath());
-                subtitleStore.storeText(av,text);
+                Map<Long, String> timeTextMap = subtitleReader.getTimeText(file.getAbsolutePath());
+                for (Map.Entry<Long, String> entry : timeTextMap.entrySet()) {
+                    subtitleStore.storeText(av, entry.getKey(), entry.getValue());
+                }
+                subtitleStore.storeText(av, text);
                 avSet.add(av);
                 try {
-                    Files.move(Paths.get(file.getAbsolutePath()),Paths.get(backup_dir_path,file.getName()));
-                }
-                catch (Exception e){
-                    logger.error("backup file:{] fail delete it",file.getAbsolutePath(),e);
+                    Files.move(Paths.get(file.getAbsolutePath()), Paths.get(backup_dir_path, file.getName()));
+                } catch (Exception e) {
+                    logger.error("backup file:{] fail delete it", file.getAbsolutePath(), e);
                     Files.delete(Paths.get(file.getAbsolutePath()));
                 }
             }

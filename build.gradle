@@ -21,7 +21,9 @@ dependencies {
 }
 compileJava {
     options.release = 11
+    options.encoding = 'UTF-8'
 }
+
 // 生成启动脚本打包
 application {
     mainClassName =  'org.jhihjian.bili.MonitorProcess'
