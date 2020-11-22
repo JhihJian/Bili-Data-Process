@@ -6,12 +6,11 @@ import org.jhihjian.bili.util.MySQL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 public class SubtitleStore {
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
@@ -76,15 +75,35 @@ public class SubtitleStore {
         return "";
     }
 
-    public boolean storeText(Long av, Long timestamp, String text) {
+    public boolean storeText(Long av, Map<Long, String> timeText) {
+        Connection conn = null;
         try {
-            int resultCode = mysql.update(String.format(INSERT_BILI_TEXT_SQL, av, timestamp, EscapeSql.escape(text)));
-            return resultCode == 1;
+            conn = mysql.getConnection();
+            String update = "INSERT INTO `bili_text` (`av`,`play_time`, `text`) VALUES (?,?,?)";
+            PreparedStatement statement = conn.prepareStatement(update);
+            for (Map.Entry<Long, String> entry : timeText.entrySet()) {
+                statement.setLong(1, av);
+                statement.setLong(2, entry.getKey());
+                statement.setString(3, EscapeSql.escape(entry.getValue()));
+                statement.addBatch();
+            }
+            statement.executeBatch();
+            statement.close();
         } catch (SQLException e) {
             logger.error("", e);
             return false;
+        } finally {
+            if (Objects.nonNull(conn)) {
+                try {
+                    conn.close();
+                } catch (SQLException throwables) {
+                    logger.error("", throwables);
+                }
+            }
         }
+        return true;
     }
+
 
     public List<Long> queryAllAv() {
         List<Long> result = new ArrayList<>();

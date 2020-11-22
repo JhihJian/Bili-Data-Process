@@ -46,9 +46,7 @@ public class MonitorProcess {
                 }
                 String text = subtitleReader.getTotalText(file.getAbsolutePath());
                 Map<Long, String> timeTextMap = subtitleReader.getTimeText(file.getAbsolutePath());
-                for (Map.Entry<Long, String> entry : timeTextMap.entrySet()) {
-                    subtitleStore.storeText(av, entry.getKey(), entry.getValue());
-                }
+                subtitleStore.storeText(av, timeTextMap);
                 subtitleStore.storeText(av, text);
                 avSet.add(av);
                 try {
