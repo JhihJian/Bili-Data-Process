@@ -35,7 +35,7 @@ compileJava {
 
 // 生成启动脚本打包
 application {
-    mainClassName = 'org.jhihjian.bili.MonitorProcess'
+    mainClassName = 'org.jhihjian.bili.mq.MqListen'
 }
 
 distTar {

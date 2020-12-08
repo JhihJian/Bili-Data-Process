@@ -3,7 +3,6 @@ package org.jhihjian.bili.process;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-import org.jhihjian.bili.SubtitleReader;
 import org.jhihjian.bili.SubtitleStore;
 import org.jhihjian.bili.mq.AvMessage;
 import org.jhihjian.bili.ocr.OcrProcess;
@@ -28,6 +27,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 public class VideoMsgProcess implements MsgProcess {
@@ -121,6 +122,13 @@ public class VideoMsgProcess implements MsgProcess {
     totalText = totalText.replaceAll(",", "");
     totalText = totalText.replaceAll("~~~", ",");
     return totalText;
+  }
+
+  private static final DateFormat dateFormat = new SimpleDateFormat("mm:ss");
+
+  // timestamp to 1:23 形式
+  public static String castTimestamp(Long timestamp) {
+    return dateFormat.format(new Date(timestamp));
   }
 
   @Override
