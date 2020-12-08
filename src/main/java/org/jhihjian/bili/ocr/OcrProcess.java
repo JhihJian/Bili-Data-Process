@@ -26,8 +26,8 @@ public class OcrProcess {
   private final URI uri = URI.create(url);
   private final HttpClient client = HttpClient.newBuilder().build();
 
-  public String postToServer(List<BufferedImage> images) {
-    String[] headers = new String[]{"Content-type", "application/json;charset=UTF-8"};
+  private String postToServer(List<BufferedImage> images) {
+    String[] headers = new String[] {"Content-type", "application/json;charset=UTF-8"};
     try {
       List<String> imageStrings = new ArrayList<>();
       for (BufferedImage image : images) {
@@ -35,11 +35,11 @@ public class OcrProcess {
       }
       String requestBody = buildPostData(imageStrings);
       HttpRequest request =
-              HttpRequest.newBuilder()
-                      .headers(headers)
-                      .uri(uri)
-                      .POST(HttpRequest.BodyPublishers.ofString(requestBody, StandardCharsets.UTF_8))
-                      .build();
+          HttpRequest.newBuilder()
+              .headers(headers)
+              .uri(uri)
+              .POST(HttpRequest.BodyPublishers.ofString(requestBody, StandardCharsets.UTF_8))
+              .build();
       HttpResponse<?> response = client.send(request, HttpResponse.BodyHandlers.ofString());
       return response.body().toString();
 

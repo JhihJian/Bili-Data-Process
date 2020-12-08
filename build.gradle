@@ -10,13 +10,20 @@ repositories {
     mavenCentral()
 }
 
-
+def hanlpVersion = 'portable-1.7.8'
 dependencies {
+    implementation('com.rabbitmq:amqp-client:5.10.0')
+    implementation('org.dom4j:dom4j:2.1.3')
+    //词云
+    implementation('com.kennycason:kumo-core:1.13')
+    implementation('com.kennycason:kumo-tokenizers:1.12')
     implementation("com.google.guava:guava:30.0-jre")
     implementation("mysql:mysql-connector-java:8.0.22")
     implementation("com.zaxxer:HikariCP:3.4.5")
-    implementation("org.slf4j:slf4j-simple:1.7.21")
+    implementation("org.slf4j:slf4j-simple:1.7.26")
+    implementation("org.slf4j:slf4j-api:1.7.26")
     implementation("org.apache.commons:commons-csv:1.8")
+    implementation("com.hankcs:hanlp:${hanlpVersion}")
     implementation files('lib/opencv-450.jar')
     implementation 'com.google.code.gson:gson:2.8.6'
     testCompile group: 'junit', name: 'junit', version: '4.12'
@@ -28,11 +35,11 @@ compileJava {
 
 // 生成启动脚本打包
 application {
-    mainClassName =  'org.jhihjian.bili.MonitorProcess'
+    mainClassName = 'org.jhihjian.bili.MonitorProcess'
 }
 
 distTar {
-    into(project.name+"-"+project.version) {
+    into(project.name + "-" + project.version) {
         from '.'
         include 'conf/*'
     }
