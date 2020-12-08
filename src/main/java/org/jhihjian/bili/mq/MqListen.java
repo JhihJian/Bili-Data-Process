@@ -13,6 +13,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static java.lang.Thread.sleep;
 
@@ -21,6 +23,8 @@ public class MqListen {
   private final String CHAT_QUEUE_NAME = new Conf().getProperty("chat_queue_name");
   private final ConnectionFactory factory;
   private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+  private static final ReentrantLock LOCK = new ReentrantLock();
+  private static final Condition STOP = LOCK.newCondition();
 
   public MqListen() {
     String HOST = new Conf().getProperty("mq_host");
@@ -65,9 +69,37 @@ public class MqListen {
         };
     videoChannel.basicConsume(VIDEO_QUEUE_NAME, true, videoCallback, consumerTag -> {});
     chatChannel.basicConsume(CHAT_QUEUE_NAME, true, chatCallback, consumerTag -> {});
-    while (true) {
-      // TODO just do wait
-      sleep(-1);
+    // 主线程阻塞等待，守护线程释放锁后退出
+    addHook();
+    try {
+      LOCK.lock();
+      STOP.await();
+    } catch (InterruptedException e) {
+      logger.warn(" service stopped, interrupted by other thread!", e);
+    } finally {
+      LOCK.unlock();
     }
+  }
+
+  private void addHook() {
+    Runtime.getRuntime()
+        .addShutdownHook(
+            new Thread(
+                () -> {
+                  logger.info("jvm exit, all service stopped.");
+                  try {
+                    LOCK.lock();
+                    STOP.signal();
+                  } finally {
+                    LOCK.unlock();
+                  }
+                },
+                "MqListen-shutdown-hook"));
+  }
+
+  public static void main(String[] args)
+      throws InterruptedException, TimeoutException, IOException {
+    MqListen mqListen = new MqListen();
+    mqListen.process();
   }
 }
