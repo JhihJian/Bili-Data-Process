@@ -2,10 +2,7 @@ package org.jhihjian.bili.util;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 public class ImageUtils {
   // convert BufferedImage to byte[]
@@ -23,5 +20,10 @@ public class ImageUtils {
     InputStream is = new ByteArrayInputStream(bytes);
     BufferedImage bi = ImageIO.read(is);
     return bi;
+  }
+
+  public static void writeBufferedImage(BufferedImage bufferedImage, String filePath)
+      throws IOException {
+    ImageIO.write(bufferedImage, "png", new File(filePath));
   }
 }

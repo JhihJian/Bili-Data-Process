@@ -69,6 +69,7 @@ public class MqListen {
         };
     videoChannel.basicConsume(VIDEO_QUEUE_NAME, true, videoCallback, consumerTag -> {});
     chatChannel.basicConsume(CHAT_QUEUE_NAME, true, chatCallback, consumerTag -> {});
+    logger.info("wait mq message...");
     // 主线程阻塞等待，守护线程释放锁后退出
     addHook();
     try {

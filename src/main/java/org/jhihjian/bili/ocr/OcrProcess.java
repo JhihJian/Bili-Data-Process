@@ -1,5 +1,6 @@
 package org.jhihjian.bili.ocr;
 
+import com.google.common.base.Stopwatch;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -18,6 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class OcrProcess {
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -67,9 +69,16 @@ public class OcrProcess {
   }
 
   public TextResult[][] imageProcess(List<BufferedImage> images) {
+    logger.info("ocr process images....");
+    Stopwatch stopwatch = Stopwatch.createStarted();
+    if (images.size() == 0) {
+      return new TextResult[][] {};
+    }
     String responseBody = postToServer(images);
     Gson gson = new Gson();
     OcrResponse ocrResponse = gson.fromJson(responseBody, OcrResponse.class);
-    return ocrResponse.getResults();
+    TextResult[][] result = ocrResponse.getResults();
+    logger.info("orc process cost time:{}", stopwatch.elapsed(TimeUnit.MILLISECONDS));
+    return result;
   }
 }

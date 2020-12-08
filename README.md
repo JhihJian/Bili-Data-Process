@@ -67,4 +67,32 @@ CREATE TABLE `bili_comment` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 
-```"# Bili-Subtitle-Process" 
+``` 
+opencv centos7 安装方法
+```
+wget -O opencv.zip https://github.com/opencv/opencv/archive/master.zip
+下载太慢，镜像地址
+https://github.91chifun.workers.dev//https://github.com/opencv/opencv/archive/4.5.0.tar.gz
+
+mkdir opencv && tar -zxvf opencv.tar.gz -C opencv
+mv opencv/opencv-4.5.0 .
+rm -rf opencv
+mv opencv-4.5.0 opencv
+
+mkdir -p opencv-build && cd opencv-build
+cmake ../opencv
+make -j4
+make install
+```
+
+paddle ocr 服务安装指南
+```
+cd /opt
+git clone https://hub.fastgit.org/PaddlePaddle/PaddleOCR.git
+cd /opt/PaddleOCR/deploy/docker/hubserving/cpu
+cat Dockerfile|sed 's$https://pypi.tuna.tsinghua.edu.cn/simple$https://mirror.baidu.com/pypi/simple$g' > Dockerfile_replace
+mv Dockerfile Dockerfile_backup
+mv Dockerfile_replace Dockerfile
+docker build -t paddleocr:cpu . 
+sudo docker run -dp 8866:8866 --name paddle_ocr paddleocr:cpu
+```
