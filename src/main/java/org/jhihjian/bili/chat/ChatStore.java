@@ -36,6 +36,7 @@ public class ChatStore {
         statement.setString(3, EscapeSql.escape(chat.getChats().get(i)));
         statement.setTimestamp(4, new Timestamp(chat.getDate().get(i)));
         statement.setString(5, EscapeSql.escape(chat.getUsers().get(i)));
+        statement.addBatch();
       }
       statement.executeBatch();
       statement.close();
