@@ -5,9 +5,11 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DeliverCallback;
 import org.jhihjian.bili.process.ChatMsgProcess;
+import org.jhihjian.bili.process.MqContext;
 import org.jhihjian.bili.process.MsgProcess;
 import org.jhihjian.bili.process.VideoMsgProcess;
 import org.jhihjian.bili.util.Conf;
+import org.jhihjian.bili.util.MySQL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +27,7 @@ public class MqListen {
   private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
   private static final ReentrantLock LOCK = new ReentrantLock();
   private static final Condition STOP = LOCK.newCondition();
+  private final MqContext mqContext = new MqContext();
 
   public MqListen() {
     String HOST = new Conf().getProperty("mq_host");
@@ -37,10 +40,19 @@ public class MqListen {
     factory.setPassword(PASSWORD);
   }
 
-  private MsgProcess videoProcess = new VideoMsgProcess();
-  private MsgProcess chatProcess = new ChatMsgProcess();
+  public MySQL initMysql() {
+    Conf conf = new Conf();
+    String url = conf.getProperty("url");
+    String user = conf.getProperty("username");
+    String pw = conf.getProperty("password");
+    return new MySQL(url, user, pw);
+  }
 
   public void process() throws IOException, TimeoutException, InterruptedException {
+    mqContext.setMySQL(initMysql());
+    MsgProcess videoProcess = new VideoMsgProcess(mqContext);
+    MsgProcess chatProcess = new ChatMsgProcess(mqContext);
+
     Connection connection = factory.newConnection();
     Channel videoChannel = connection.createChannel();
     Channel chatChannel = connection.createChannel();
@@ -87,6 +99,7 @@ public class MqListen {
         .addShutdownHook(
             new Thread(
                 () -> {
+                  mqContext.destroy();
                   logger.info("jvm exit, all service stopped.");
                   try {
                     LOCK.lock();

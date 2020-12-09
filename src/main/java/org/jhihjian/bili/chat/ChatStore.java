@@ -15,15 +15,11 @@ import java.util.Objects;
 
 public class ChatStore {
   private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
-  private final MySQL mysql;
+  private MySQL mysql;
 
-  public ChatStore() {
-    Conf conf = new Conf();
+  public ChatStore(MySQL mysql) {
 
-    String url = conf.getProperty("url");
-    String user = conf.getProperty("username");
-    String pw = conf.getProperty("password");
-    mysql = new MySQL(url, user, pw);
+    this.mysql = mysql;
   }
 
   public boolean store(Long av, Chat chat) {

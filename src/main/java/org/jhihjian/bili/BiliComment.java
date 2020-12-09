@@ -124,8 +124,8 @@ public class BiliComment {
     }
     return true;
   }
-
-  private SubtitleStore subtitleStore = new SubtitleStore();
+  // TODO
+  private SubtitleStore subtitleStore = null;
 
   public boolean commentText(String av) throws Exception {
     String text = subtitleStore.queryTextByAv(Long.valueOf(av));

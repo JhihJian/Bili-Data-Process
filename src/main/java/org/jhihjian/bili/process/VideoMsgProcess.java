@@ -8,10 +8,7 @@ import org.jhihjian.bili.SubtitleStore;
 import org.jhihjian.bili.mq.AvMessage;
 import org.jhihjian.bili.ocr.OcrProcess;
 import org.jhihjian.bili.ocr.TextResult;
-import org.jhihjian.bili.util.Conf;
-import org.jhihjian.bili.util.HashSimilarity;
-import org.jhihjian.bili.util.ISimilarity;
-import org.jhihjian.bili.util.ImageUtils;
+import org.jhihjian.bili.util.*;
 import org.opencv.core.*;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
@@ -40,6 +37,11 @@ public class VideoMsgProcess implements MsgProcess {
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
   private final double IMAGE_SIMILAR = Double.parseDouble(conf.getProperty("image_similar"));
   private final double TEXT_SIMILAR = Double.parseDouble(conf.getProperty("text_similar"));
+  private MqContext mqContext;
+
+  public VideoMsgProcess(MqContext mqContext) {
+    this.mqContext = mqContext;
+  }
 
   static {
     System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
@@ -53,10 +55,13 @@ public class VideoMsgProcess implements MsgProcess {
     Stopwatch stopwatch = Stopwatch.createStarted();
     // 帧率
     int frame_num = ((int) videoCapture.get(5)) / 2;
+    // centos 上存在为0的情况
+    frame_num = frame_num == 0 ? INTERVAL_FRAME_NUM : frame_num;
     int index = 0;
     int out_num = 0;
     int read_num = 0;
     Mat preImage = null;
+    logger.info("video {} 帧率:{}", path, frame_num);
     while (videoCapture.grab()) {
       videoCapture.read(image);
       while (index++ == frame_num) {
@@ -189,7 +194,7 @@ public class VideoMsgProcess implements MsgProcess {
     }
     String totalText = getTotalText(timeTextMap);
     // 保存结果
-    SubtitleStore subtitleStore = new SubtitleStore();
+    SubtitleStore subtitleStore = new SubtitleStore(mqContext.getMySQL());
     subtitleStore.storeText(avMessage.getAv(), timeTextMap);
     subtitleStore.storeText(avMessage.getAv(), totalText);
     // 处理文件
@@ -202,9 +207,15 @@ public class VideoMsgProcess implements MsgProcess {
   }
 
   public static void main(String[] args) throws Exception {
-    String videoJson =
-        "{\"av\":288007988,\"path\":\"/opt/video_download/288007988/Videos/288007988.mp4\"}";
-    VideoMsgProcess process = new VideoMsgProcess();
+    Conf conf = new Conf();
+    String url = conf.getProperty("url");
+    String user = conf.getProperty("username");
+    String pw = conf.getProperty("password");
+    MySQL mysql = new MySQL(url, user, pw);
+    MqContext mqContext = new MqContext();
+    mqContext.setMySQL(mysql);
+    String videoJson = "{\"av\":755489615,\"path\":\"/opt/video_download/755489615.mp4\"}";
+    VideoMsgProcess process = new VideoMsgProcess(mqContext);
     process.process(videoJson);
   }
 }
